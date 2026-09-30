@@ -1,13 +1,25 @@
 const express = require("express");
 require("dotenv").config();
 require("./db/connection");
+require("./config/passport");
 
 const app = express();
 const port = process.env.PORT;
+
 const userRoutes = require("./routes/userRoutes");
+const cors = require("cors");
 const session = require("express-session");
+const passport = require("passport");
 
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  }),
+);
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -20,10 +32,11 @@ app.use(
     },
   }),
 );
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use("/api/users", userRoutes);
-app.get("/hi", (req, res) => {
-  res.send("Hello world");
-});
 
 app.listen(port, () => {
   console.log(`app is listening to port: ${port}`);
